@@ -30,7 +30,7 @@ namespace GraphApp
             int solutionIndex = 0;
             foreach (var solution in solutions)
             {
-                Console.WriteLine(FormatRow(solutionIndex, solution, connections));
+                Console.WriteLine(FormatRow(++solutionIndex, solution, connections));
             }
         }
 
@@ -40,7 +40,7 @@ namespace GraphApp
         private static string FormatRow(int solutionIndex, List<Node> solution, List<string> connections)
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append($"Solution {++solutionIndex}: ");
+            sb.Append($"Solution {solutionIndex}: ");
 
             for (int i = 0; i < connections.Count; i++)
                 sb.Append($"{solution[i].NodeId}, {connections[i]}, ");
