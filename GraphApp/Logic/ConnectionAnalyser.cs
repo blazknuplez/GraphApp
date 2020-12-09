@@ -20,13 +20,13 @@ namespace GraphApp
             return _solutions;
         }
 
-        private List<Node> FindNodesByConnection(List<Node> nodes, List<string> connections, int iteration, List<Node> solution)
+        private List<Node> FindNodesByConnection(List<Node> nodes, List<string> connections, int iteration, List<Node> parentSolution)
         {
             if (iteration > connections.Count - 1)
             {
                 nodes.ForEach(node =>
                 {
-                    var result = new List<Node>(solution);
+                    var result = new List<Node>(parentSolution);
                     result.Add(node);
                     _solutions.Add(result);
                 });
@@ -38,7 +38,7 @@ namespace GraphApp
 
             foreach (Node node in nodes.Where(i => i.Connections.ContainsKey(connection)))
             {
-                var partialResult = solution == null ? new List<Node>() : new List<Node>(solution);
+                var partialResult = parentSolution == null ? new List<Node>() : new List<Node>(parentSolution);
                 partialResult.Add(node);
 
                 var destinationNodes = node.Connections.GetValueOrDefault(connection);
