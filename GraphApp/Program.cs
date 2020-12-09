@@ -45,15 +45,12 @@ namespace GraphApp
         {
             if (iteration > commands.Count - 1)
             {
-                if (solution.Count == iteration && nodes.Any())
+                nodes.ForEach(fn =>
                 {
-                    nodes.ForEach(fn =>
-                    {
-                        var subResult = new List<Node>(solution);
-                        subResult.Add(fn);
-                        Solutions.Add(subResult);
-                    });
-                }
+                    var subResult = new List<Node>(solution);
+                    subResult.Add(fn);
+                    Solutions.Add(subResult);
+                });
 
                 return nodes;
             }
@@ -68,6 +65,10 @@ namespace GraphApp
                 subResult.Add(node);
 
                 var destinationNodes = node.Connections.GetValueOrDefault(connection);
+
+                if (!destinationNodes.Any())
+                    continue;
+
                 FindNodesByConnection(destinationNodes, commands, ++i, subResult);
             }
 
