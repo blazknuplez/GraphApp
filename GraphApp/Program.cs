@@ -68,7 +68,7 @@ namespace GraphApp
                 subResult.Add(node);
 
                 var destinationNodes = node.Connections.GetValueOrDefault(connection);
-                var filteredNodes = FindNodesByConnection(destinationNodes, commands, ++i, subResult);
+                FindNodesByConnection(destinationNodes, commands, ++i, subResult);
             }
 
             return nodes;
@@ -79,7 +79,6 @@ namespace GraphApp
             StreamReader file = new StreamReader(FileName);
 
             string line;
-            int connectionCount = 0;
             while ((line = file.ReadLine()) != null)
             {
                 var items = line.Split(',');
@@ -92,7 +91,6 @@ namespace GraphApp
                 Node nodeTo = GetOrAddNode(nodeToId);
 
                 nodeFrom.InsertConnection(connection, nodeTo);
-                connectionCount++;
             }
         }
 
