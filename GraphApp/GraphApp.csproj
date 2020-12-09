@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Update="avtomat-test.aut">
+    <None Update="Data\avtomat-test.aut">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="avtomat-todo.aut">
+    <None Update="Data\avtomat-todo.aut">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

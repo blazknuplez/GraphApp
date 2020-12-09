@@ -3,113 +3,51 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Enumeration;
 using System.Linq;
+using System.Text;
 
 namespace GraphApp
 {
     class Program
     {
-        private static Dictionary<int, Node> Nodes = new Dictionary<int, Node>();
-        private static List<List<Node>> Solutions = new List<List<Node>>();
-        private static string FileName = @".\avtomat-todo.aut";
-        //private static string FileName = @".\avtomat-test.aut";
-
         static void Main(string[] args)
         {
-            List<string> commands = new List<string> { "F0!", "StartTX!", "G0!", "ACK!", "B!", "StopTX!", "SOK!", "REQ?", "F0!" };
-            //List<string> commands = new List<string> { "TAU", "ABC" };
+            string fileName = @".\Data\avtomat-todo.aut";
+            List<string> connections = new List<string> { "F0!", "StartTX!", "G0!", "ACK!", "B!", "StopTX!", "SOK!", "REQ?", "F0!" };
 
-            GetData();
+            INodeParser parser = new NodeParser();
+            var nodes = parser.ParseData(fileName);
 
-            Console.WriteLine($"Number of nodes: {NodeCount}");
-            Console.WriteLine($"Number of connections: {ConnectionCount}");
-            Console.WriteLine($"Searching for: {string.Join(',', commands)}");
+            Console.WriteLine($"Number of nodes: {nodes.Count}");
+            Console.WriteLine($"Number of connections: {ConnectionCount(nodes)}");
+            Console.WriteLine($"Searching for: {string.Join(',', connections)}");
 
-            FindConnections(commands);
+            IConnectionAnalyser connectionAnalyser = new ConnectionAnalyser();
+            var solutions = connectionAnalyser.FindConnections(nodes, connections);
 
             Console.WriteLine();
-            Console.WriteLine($"Solutions found: {Solutions.Count}");
+            Console.WriteLine($"Solutions found: {solutions.Count}");
 
-            int index = 0;
-            foreach (var solution in Solutions)
+            int solutionIndex = 0;
+            foreach (var solution in solutions)
             {
-                Console.WriteLine($"Solution {++index}: {string.Join(',', solution.Select(i => i.NodeId))}");
+                Console.WriteLine(FormatRow(solutionIndex, solution, connections));
             }
         }
 
-        private static void FindConnections(List<string> commands)
+        private static int ConnectionCount(Dictionary<int, Node> nodes) 
+            => nodes.Values.ToList().SelectMany(i => i.Connections.Values.ToList()).Sum(i => i.Count);
+
+        private static string FormatRow(int solutionIndex, List<Node> solution, List<string> connections)
         {
-            FindNodesByConnection(Nodes.Values.ToList(), commands, 0, null);
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"Solution {++solutionIndex}: ");
+
+            for (int i = 0; i < connections.Count; i++)
+                sb.Append($"{solution[i].NodeId}, {connections[i]}, ");
+
+            sb.Append(solution.LastOrDefault()?.NodeId);
+
+            return sb.ToString();
         }
-
-        private static List<Node> FindNodesByConnection(List<Node> nodes, List<string> commands, int iteration, List<Node> solution)
-        {
-            if (iteration > commands.Count - 1)
-            {
-                nodes.ForEach(fn =>
-                {
-                    var subResult = new List<Node>(solution);
-                    subResult.Add(fn);
-                    Solutions.Add(subResult);
-                });
-
-                return nodes;
-            }
-
-            string connection = commands[iteration];
-
-            foreach(Node node in nodes.Where(i => i.Connections.ContainsKey(connection)))
-            {
-                int i = iteration;
-
-                var subResult = solution == null ? new List<Node>() : new List<Node>(solution);
-                subResult.Add(node);
-
-                var destinationNodes = node.Connections.GetValueOrDefault(connection);
-
-                if (!destinationNodes.Any())
-                    continue;
-
-                FindNodesByConnection(destinationNodes, commands, ++i, subResult);
-            }
-
-            return nodes;
-        }
-
-        private static void GetData()
-        {
-            StreamReader file = new StreamReader(FileName);
-
-            string line;
-            while ((line = file.ReadLine()) != null)
-            {
-                var items = line.Split(',');
-
-                int nodeFromId = int.Parse(items[0]);
-                string connection = items[1];
-                int nodeToId = int.Parse(items[2]);
-
-                Node nodeFrom = GetOrAddNode(nodeFromId);
-                Node nodeTo = GetOrAddNode(nodeToId);
-
-                nodeFrom.InsertConnection(connection, nodeTo);
-            }
-        }
-
-        private static Node GetOrAddNode(int nodeId)
-        {
-            Node node = Nodes.GetValueOrDefault(nodeId);
-
-            if (node == null)
-            {
-                node = new Node(nodeId);
-                Nodes.Add(node.NodeId, node);
-            }
-
-            return node;
-        }
-
-        private static int NodeCount => Nodes.Count;
-
-        private static int ConnectionCount => Nodes.Values.ToList().SelectMany(i => i.Connections.Values.ToList()).Sum(i => i.Count);
     }
 }
