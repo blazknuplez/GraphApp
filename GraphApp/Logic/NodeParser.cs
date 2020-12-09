@@ -13,7 +13,7 @@ namespace GraphApp
         public Dictionary<int, Node> ParseData(string filePath)
         {
             Dictionary<int, Node> nodes = new Dictionary<int, Node>();
-            StreamReader file = new StreamReader(filePath);
+            using StreamReader file = new StreamReader(filePath);
 
             string line;
             while ((line = file.ReadLine()) != null)
